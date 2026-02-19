@@ -1,6 +1,7 @@
-#incldue "chip8.h"
+#include "chip8.h"
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 
 
@@ -31,7 +32,7 @@ CHIP8::CHIP8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    for (unsigned int i = 0; i < FONTSET_SIZE. ++i)
+    for (unsigned int i = 0; i < FONTSET_SIZE; ++i)
     {
         fontset[i] = tempFontset[i];
         memory[FONTSET_START_ADDRESS + i] = fontset[i];
@@ -62,3 +63,152 @@ void CHIP8::loadROM(const char* filename)
         }
     }
 }
+
+void CHIP8::OP_00E0(){
+    std::fill(std::begin(video), std::end(video), 0);
+}
+
+void CHIP8::OP_00EE(){
+    --sp;
+    Pc = stakc[sp];
+
+}
+
+void CHIP8::OP_1nnn()
+{
+    uint16_t address = opcode & 0x0FFFu;
+    Pc = address;
+}
+
+void CHIP8::OP_2nnn() // empty stack convention
+{
+    uint16_t address = opcode & 0x0FFFu;
+
+    stack[sp] = Pc;
+    ++sp;
+    Pc = address;
+}
+
+void CHIP8::OP_3xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = (opcode & 0x00FF);
+
+    if(V[Vx] == byte)
+    {
+        Pc += 2;
+    }
+}
+
+void CHIP8::OP_4xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = (opcode & 0x00FFu);
+
+    if(V[Vx] != byte)
+    {
+        Pc += 2;
+    }
+}
+
+void CHIP8::OP_5xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u ;
+    if(V[Vx] == V[Vy]){
+        Pc += 2;
+    }
+}
+
+void CHIP8::OP_6xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = (opcode & 0x00FFu);
+
+    V[Vx] = byte;
+}
+
+void CHIP8::OP_7xkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = (opcode & 0x00FFu);
+
+    V[Vx] +=byte;
+
+}
+
+void CHIP8::OP_8xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+    V[Vx] = V[Vy];
+}
+
+void CHIP8::OP_8xy1()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    V[Vx] |= V[Vy]; // Vx = Vx OR Vy
+}
+
+void CHIP8::OP_8xy2()
+{
+     uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    V[Vx] &= V[Vy]; // Vx = Vx AND Vy
+}
+
+void CHIP8::OP_8xy3()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    V[Vx] ^= V[Vy]; // Vx = Vx XOR Vy
+}
+
+void CHIP8::OP_8xy4()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    uint16_t sum = V[Vx] + V[Vy];
+
+    if(sum > 255U)
+    {
+        V[0xF] = 1;
+    }
+    else{
+        V[0xF] = 0;
+    }
+    V[Vx]= sum & 0xFFu;
+}
+
+void CHIP8::OP_8xy5()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if(V[Vx] >= V[Vy])
+    {
+        V[0xF] = 1;
+    }
+    else{
+        V[0xF] = 0;
+    }
+
+    V[Vx] -= V[Vy];
+}
+
+void CHIP8::OP_8xy6()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    V[0xF] = (V[Vx] & 0x1u);
+
+    V[Vx] >>= 1;
+}
+
+
+

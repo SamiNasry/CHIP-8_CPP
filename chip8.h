@@ -37,7 +37,7 @@ class CHIP8
     // OPCODES
 
     //CLS - Clear the display
-    void OP_000E0();
+    void OP_00E0();
     
     //RET - return from a subroutine
     void OP_00EE();
@@ -55,7 +55,7 @@ class CHIP8
     void OP_4xkk();
 
     //5xk0 - SE Vx, Vy - Skip next instruction if Vx = Vy
-    voif OP_5xy0();
+    void OP_5xy0();
 
     //6xkk - LD Vx, byte - Set Vx = kk
     void OP_6xkk();
@@ -84,7 +84,27 @@ class CHIP8
     //8xy6 - SHR Vx - Set Vx = Vx SHR 1
     void OP_8xy6();
 
-    
+    //8xy7 - SUBN Vx, Vy - Set Vx = Vy - Vx, set VF = NOT borrow
+    void OP_8xy7();
+
+    //8xyE - SHL Vx {, Vy} - Set Vx = Vx SHL 1
+    void OP_8xyE();
+
+    //9xy0, Skilp next Instruction if Vx != Vy
+    void OP_9xy0();
+
+    //Annn - LD I , addr Set I = nnn
+    void OP_Annn();
+
+    //Bnnn - JP V0, addr - Jump to location nnn + V0
+    void OP_Bnnn();
+
+
+
+
+
+
+
 
 
 
