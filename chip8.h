@@ -10,7 +10,7 @@ class CHIP8
     
     const unsigned int START_ADDRESS = 0x200;
     const unsigned int FONTSET_SIZE = 80;
-    const unsinged int FONTSET_START_ADDRESS = 0x50;
+    const unsigned int FONTSET_START_ADDRESS = 0x50;
 
     std::default_random_engine randGen;
     std::uniform_int_distribution<uint8_t> randbyte;

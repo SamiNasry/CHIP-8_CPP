@@ -302,6 +302,118 @@ void CHIP8::OP_Dxyn()
     })
 }
 
+void CHIP8::Ex9E()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    uint8_t key = V[Vx];
+
+    if (keypad[key])
+    {
+        pc += 2;
+    }
+}
+
+void CHIP8::ExA1()
+{
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    uint8_t key = V[Vx];
+
+    if (!keypad[key])
+    {
+        pc += 2;
+    }
+}
+
+void CHIP8::Fx07()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    V[Vx] = delayTimer;
+}
+
+void CHIP8::Fx0A()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    bool keyPressed = false;
+
+    for(int i = 0; i < 16; ++i)
+    {
+        if (keypad[i])
+        {
+            V[Vx] = i;
+            keyPressed = true;
+            break;
+        }
+    }
+   
+    if(!keyPressed)
+    {
+        pc -= 2;
+    }
+
+}
+
+void CHIP8::OP_Fx15()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    delayTimer = V[Vx];
+}
+
+void CHIP8::OP_Fx18()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    soundTimer = V[Vx];
+}
+
+void CHIP8::Fx1E()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    index += V[Vx];
+}
+
+void CHIP8::OP_Fx29()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t digit = V[Vx];
+
+    index = FONTSET_START_ADDRESS + (digit *5);
+}
+
+void CHIP8::OP_Fx33()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    value = V[Vx];
+
+    memory[index + 2] = value % 10;
+    value /= 10;
+
+    memory[index+1] = value % 10;
+    value /= 10;
+
+    memory[index] = value%10;
+}
+
+void CHIP8::OP_Fx55()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    for(uint8_t i = 0; i <= Vx; ++i)
+    {
+        memory[index + i] = V[i];
+    }
+}
+
+void CHIP8::OP_Fx65()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    for (uint8_t i = 0; i <= Vx; ++i)
+    {
+        V[i] = memory[index + i];
+    }
+}
+
 
 
 
