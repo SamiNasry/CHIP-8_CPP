@@ -9,6 +9,7 @@
 const unsigned int START_ADDRESS = 0x200;
 
 CHIP8::CHIP8() : randGen(std::chrono::system_clock::now().time_since_epoch().count()){
+    
     randbyte = std::uniform_int_distribution<uint8_t>(0, 255U);
 
     Pc = START_ADDRESS;
@@ -39,8 +40,6 @@ CHIP8::CHIP8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
     }
  
 }
-
-
 
 
 
@@ -209,6 +208,100 @@ void CHIP8::OP_8xy6()
 
     V[Vx] >>= 1;
 }
+
+void CHIP8::OP_8xy7()
+{
+     uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if(V[Vy] >= V[Vx])
+    {
+        V[0xF] = 1;
+    }
+    else{
+        V[0xF] = 0;
+    }
+
+    V[Vx] = (V[Vy] - V[Vx]);
+}
+
+void CHIP::OP_8xyE()
+{
+     uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+
+    V[0xF] = (V[Vx] & 0x80u) >> 7u;
+
+    V[Vx] <<= 1;
+}
+
+
+void CHIP::OP_9xy0()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if(V[Vx] != V[Vy]){
+        Pc += 2;
+    }
+}
+
+void CHIP8::Annn()
+{
+    uint16_t address = (opcode & 0x0FFFu);
+
+    index = address;
+}
+
+void CHIP8::Bnnn()
+{
+    uint16_t address = (opcode & 0x0FFFu);
+
+    pc = V[0] + address;
+}
+
+void CHIP8::OP_Cxkk()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    V[Vx] = randByte(randgen) & byte;
+}
+
+void CHIP8::OP_Dxyn()
+{
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+    uint8_t height = (opcde & 0x000Fu);
+
+    // Wrap
+    uint8_t cPos = V[Vx] % VIDEO_WIDTH;
+    uint8_t yPos = V[Vy] % VIDEO_HEIGHT;
+
+    V[0xF] = 0;
+
+    for(unsigned int row = 0; row < heaight; ++row
+    {
+        uint8_t spriteByte = memory[index + row];
+
+        for(unsigned int col = 0; col < 8; ++col)
+        {
+            uint8_t spritePixel = spriteByte & (0x8u >> col);
+            uint32_t* screenPixel = &video[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
+
+            if (spritePixel)
+            {
+                if (*screenPixel == 0xFFFFFFFF)
+                {
+                    V[0xF] = 1;
+                }
+
+                *screenPixel ^= 0xFFFFFFFF;
+            }
+        }
+
+    })
+}
+
 
 
 
