@@ -37,7 +37,6 @@ int main(int argc, char* argv[])
     auto lastCycleTime = std::chrono::high_resolution_clock::now();
     bool quit = false;
 
-    for(int i = 0; i < (64 * 32); ++i) { chip8.video[i] = 0xFFFFFFFF; }
 
     while (!quit)
     {
@@ -56,4 +55,4 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
+}   

@@ -359,32 +359,43 @@ void CHIP8::OP_Dxyn()
     uint8_t Vy = (opcode & 0x00F0u) >> 4u;
     uint8_t height = (opcode & 0x000Fu);
 
-    // Wrap
+    // Initial starting positions (wrapped if they start off-screen)
     uint8_t xPos = V[Vx] % VIDEO_WIDTH;
     uint8_t yPos = V[Vy] % VIDEO_HEIGHT;
 
-    V[0xF] = 0;
+    V[0xF] = 0; // Reset collision register
 
-    for(unsigned int row = 0; row < height; ++row)
+    for (unsigned int row = 0; row < height; ++row)
     {
+        // Safety: If the next row is off the bottom of the screen, stop drawing
+        if (yPos + row >= VIDEO_HEIGHT) break;
+
         uint8_t spriteByte = memory[index + row];
 
-        for(unsigned int col = 0; col < 8; ++col)
+        for (unsigned int col = 0; col < 8; ++col)
         {
+            // Safety: If the next pixel is off the right side, skip this pixel
+            if (xPos + col >= VIDEO_WIDTH) break;
+
             uint8_t spritePixel = spriteByte & (0x80u >> col);
+            
+            // Pointer to the specific pixel in our 1D video array
             uint32_t* screenPixel = &video[(yPos + row) * VIDEO_WIDTH + (xPos + col)];
 
             if (spritePixel)
             {
+                // Collision Detection: 
+                // If the screen pixel is already ON (White), set VF to 1
                 if (*screenPixel == 0xFFFFFFFF)
                 {
                     V[0xF] = 1;
                 }
 
+                // XOR the pixel: 
+                // This turns White to Black and Black to White
                 *screenPixel ^= 0xFFFFFFFF;
             }
         }
-
     }
 }
 
@@ -503,7 +514,7 @@ void CHIP8::OP_Fx65()
 
 void CHIP8::Cycle()
 {
-    opcode = memory[Pc] | memory[Pc+1];
+    opcode = (memory[Pc] << 8u) | memory[Pc+1];
 
     Pc += 2;
 
