@@ -8,18 +8,20 @@ class CHIP8
 {
     public:
     
-    const unsigned int START_ADDRESS = 0x200;
-    const unsigned int FONTSET_SIZE = 80;
-    const unsigned int FONTSET_START_ADDRESS = 0x50;
+    static constexpr unsigned int START_ADDRESS = 0x200;
+    static constexpr unsigned int FONTSET_SIZE = 80;
+    static constexpr unsigned int FONTSET_START_ADDRESS = 0x50;
+    static constexpr unsigned int VIDEO_WIDTH = 64;
+    static constexpr unsigned int VIDEO_HEIGHT =  32;
 
     std::default_random_engine randGen;
-    std::uniform_int_distribution<uint8_t> randbyte;
+    std::uniform_int_distribution<uint8_t> randByte;
     
 
     uint16_t opcode;
     uint8_t memory[4096]{};
     uint8_t V[16]{}; // Registers
-    uint16_t I{},Pc{};
+    uint16_t index{},Pc{};
     uint16_t stack[16]{};
     uint8_t sp{};
     uint8_t delayTimer{}, soundTimer{};
@@ -28,6 +30,15 @@ class CHIP8
 
     uint8_t fontset[FONTSET_SIZE];
 
+    
+    typedef void (CHIP8::*Chip8func)();
+
+
+    Chip8func table[0xF + 1]{};
+    Chip8func table0[0xE + 1]{};
+    Chip8func table8[0xE + 1]{};
+    Chip8func tableE[0xE + 1]{};
+    Chip8func tableF[0x65 +1]{};
 
 
 
@@ -98,6 +109,35 @@ class CHIP8
 
     //Bnnn - JP V0, addr - Jump to location nnn + V0
     void OP_Bnnn();
+
+    // Cxkk - RND Vx, byte - Set Vx = random byte AND kk
+    void OP_Cxkk();
+
+    // Dxyn - DRW Vx, Vy, nibble - Display/draw sprite
+    void OP_Dxyn();
+
+
+    // Ex9E, ExA1 - Skip on key press/not pressed
+    void OP_Ex9E();
+    void OP_ExA1();
+
+
+    void OP_Fx07();
+    void OP_Fx0A();
+    void OP_Fx15();
+    void OP_Fx18();
+    void OP_Fx1E();
+    void OP_Fx29();
+    void OP_Fx33();
+    void OP_Fx55();
+    void OP_Fx65();
+
+    // helper functions
+    void Table0();
+    void Table8();
+    void TableE();
+    void TableF();
+    void OP_NULL();
 
 
 
