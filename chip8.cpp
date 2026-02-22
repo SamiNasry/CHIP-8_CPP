@@ -122,24 +122,7 @@ void CHIP8::TableF()
 void CHIP8::OP_NULL()
 	{}
 
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
 // This function is improved better than the one in the website
-
 void CHIP8::loadROM(const char* filename)
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
@@ -511,5 +494,26 @@ void CHIP8::OP_Fx65()
 }
 
 
+void CHIP8::Cycle()
+{
+    opcode = memory[Pc] | memory[Pc+1];
+
+    Pc += 2;
+
+    ((*this).*(table[(opcode & 0xF000u) >> 12u]))  ();
+
+    if(delayTimer)
+    {
+        --delayTimer;
+    }
+
+    if(soundTimer)
+    {
+        --soundTimer;
+    }
 
 
+
+
+
+}

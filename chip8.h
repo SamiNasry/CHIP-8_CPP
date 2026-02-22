@@ -43,6 +43,10 @@ class CHIP8
 
 
     CHIP8();
+
+    void Cycle();
+
+
     void loadROM(const char* filename);
 
     // OPCODES
